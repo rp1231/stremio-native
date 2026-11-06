@@ -1,0 +1,45 @@
+name: Mirror MPV runtime
+
+# One-off helper for this fork: shinchiro/mpv-winbuild-cmake prunes old
+# releases, which breaks the URL pinned in mpv.lock.json. This copies one of
+# its libmpv dev archives into a release on this repository (after checking
+# GitHub's published SHA-256) and prints the hashes mpv.lock.json needs.
+
+on:
+  push:
+    branches: [tools/mpv-mirror]
+
+permissions:
+  contents: write
+
+jobs:
+  mirror:
+    runs-on: ubuntu-24.04
+    env:
+      SRC_TAG: "20260921"
+      ASSET: mpv-dev-x86_64-v3-20260921-git-e76a35ec95.7z
+      EXPECTED_SHA256: ad14a894b69e589272f046d4c2ecf8b1e7e841ad1191ec973d2e65fcd79dab52
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Download and verify
+        run: |
+          set -euo pipefail
+          curl -fsSL -o "$ASSET" "https://github.com/shinchiro/mpv-winbuild-cmake/releases/download/$SRC_TAG/$ASSET"
+          echo "$EXPECTED_SHA256  $ASSET" | sha256sum -c
+      - name: Report lock values
+        run: |
+          set -euo pipefail
+          mkdir x && 7z x -ox "$ASSET" > /dev/null
+          ls -la x x/include/mpv
+          sha256sum "$ASSET" x/libmpv-2.dll x/libmpv.dll.a x/include/mpv/*.h
+          grep -n "MPV_CLIENT_API_VERSION MPV_MAKE_VERSION" x/include/mpv/client.h
+      - name: Publish to this repository
+        run: |
+          set -euo pipefail
+          tag="mpv-runtime-$SRC_TAG"
+          gh release view "$tag" -R "$GITHUB_REPOSITORY" > /dev/null 2>&1 || \
+            gh release create "$tag" -R "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --prerelease \
+              --title "libmpv runtime $SRC_TAG (mirror)" \
+              --notes "Unmodified copy of $ASSET from https://github.com/shinchiro/mpv-winbuild-cmake/releases/tag/$SRC_TAG (sha256 $EXPECTED_SHA256), mirrored because upstream prunes old releases."
+          gh release upload "$tag" "$ASSET" -R "$GITHUB_REPOSITORY" --clobber
+          echo "URL: https://github.com/$GITHUB_REPOSITORY/releases/download/$tag/$ASSET"
