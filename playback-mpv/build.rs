@@ -474,17 +474,25 @@ fn cargo_profile_dir() -> Result<PathBuf, io::Error> {
     let out_dir = PathBuf::from(
         env::var_os("OUT_DIR").ok_or_else(|| io::Error::other("Cargo did not provide OUT_DIR"))?,
     );
+    profile_dir_from_out_dir(&out_dir).ok_or_else(|| {
+        io::Error::other(format!(
+            "could not derive Cargo's profile directory from {}",
+            out_dir.display()
+        ))
+    })
+}
+
+/// The profile directory is the parent of the nearest `build` ancestor of
+/// OUT_DIR. Counting levels does not work across Cargo versions: the classic
+/// layout is `<profile>/build/<pkg>-<hash>/out`, while the newer build-dir
+/// layout used by current nightlies is `<profile>/build/<pkg>/<hash>/out`.
+fn profile_dir_from_out_dir(out_dir: &Path) -> Option<PathBuf> {
     out_dir
-        .parent()
-        .and_then(Path::parent)
+        .ancestors()
+        .skip(1)
+        .find(|dir| dir.file_name().is_some_and(|name| name == "build"))
         .and_then(Path::parent)
         .map(Path::to_path_buf)
-        .ok_or_else(|| {
-            io::Error::other(format!(
-                "could not derive Cargo's profile directory from {}",
-                out_dir.display()
-            ))
-        })
 }
 
 fn mpv_cache_dir(lock: &MpvLock, profile_dir: &Path) -> PathBuf {
