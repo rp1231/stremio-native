@@ -154,9 +154,13 @@ fn validate_windows_lock(lock: &MpvLock) -> Result<(), io::Error> {
             lock.linkage
         )));
     }
-    if (lock.client_api.major, lock.client_api.minor) != (CLIENT_API_MAJOR, CLIENT_API_MINOR) {
+    // The bindings target CLIENT_API_MAJOR.CLIENT_API_MINOR. libmpv keeps its
+    // client API backward compatible within a major version, so a runtime with
+    // a newer minor serves them unchanged; this matches the check `ffi.rs`
+    // applies to the loaded library at run time.
+    if lock.client_api.major != CLIENT_API_MAJOR || lock.client_api.minor < CLIENT_API_MINOR {
         return Err(io::Error::other(format!(
-            "MPV client API pin mismatch: build expects {CLIENT_API_MAJOR}.{CLIENT_API_MINOR}, lock contains {}.{}",
+            "MPV client API pin mismatch: build expects {CLIENT_API_MAJOR}.x with x >= {CLIENT_API_MINOR}, lock contains {}.{}",
             lock.client_api.major, lock.client_api.minor
         )));
     }

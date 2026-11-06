@@ -2,32 +2,32 @@
   "schemaVersion": 3,
   "channel": "git",
   "linkage": "dynamic",
-  "release": "20260610",
+  "release": "20261106",
   "mpv": {
-    "version": "v0.41.0-744-g304426c39",
-    "revision": "304426c390901436fb1d4a63efbd582ae80c88f4",
+    "version": "git-9028187538",
+    "revision": "902818753849d9ad8f0096fad6ca5aeaa37113b9",
     "repository": "https://github.com/mpv-player/mpv"
   },
   "clientApi": {
     "major": 2,
-    "minor": 5
+    "minor": 6
   },
   "distribution": {
     "provider": "shinchiro/mpv-winbuild-cmake",
     "repository": "https://github.com/shinchiro/mpv-winbuild-cmake",
-    "release": "20260610",
-    "asset": "mpv-dev-x86_64-v3-20260610-git-304426c.7z",
-    "url": "https://github.com/shinchiro/mpv-winbuild-cmake/releases/download/20260610/mpv-dev-x86_64-v3-20260610-git-304426c.7z",
-    "sha256": "d4b3d6df9fdb33d5591c4ece7d0cc24d2f7822b298f6a1528595e0ccff7424a6"
+    "release": "20261106",
+    "asset": "mpv-dev-x86_64-v3-20261106-git-9028187538.7z",
+    "url": "https://github.com/rp1231/stremio-native/releases/download/mpv-runtime-20261106/mpv-dev-x86_64-v3-20261106-git-9028187538.7z",
+    "sha256": "a778b3444b0b8b6d93cb00ca49f2acf62a02d0b61249229fc9944672f80683bb"
   },
   "headers": {
     "client.h": {
       "file": "include/mpv/client.h",
-      "sha256": "1acf99ee77c8c2a6f1d1993bd81bbc8a91d27fb5924e80171670e6139a4bd353"
+      "sha256": "3da9b8c61c3fb4e2d76bd248cebf72f3ee830331411b71a76adbd5e05660cc50"
     },
     "render.h": {
       "file": "include/mpv/render.h",
-      "sha256": "192691941602052f00df0587f126246c48785a1cf21de68d22a92ea1908d1c55"
+      "sha256": "f2550aa29b2e9b20988bd954b4383e9fa05fd9e40d1669fbc6edf2afac603f15"
     },
     "render_gl.h": {
       "file": "include/mpv/render_gl.h",
@@ -57,7 +57,7 @@
       "linkName": "mpv",
       "runtimeLibrary": {
         "file": "bin/libmpv-2.dll",
-        "sha256": "ade5cac46cfc397a3d5cd356a968cda7acf0debffb705a16509dafdf93029f5e"
+        "sha256": "7331d471efaf748432ec31b6f916937f89b61bc82387081c9a5aa3da051d2d7d"
       },
       "importLibrary": {
         "file": "lib/mpv.lib",
@@ -73,5 +73,5 @@
       }
     }
   },
-  "verifiedAt": "2026-07-17"
+  "verifiedAt": "2026-11-06"
 }
