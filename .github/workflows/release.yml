@@ -24,40 +24,6 @@ jobs:
         with:
           toolchain: nightly-2026-07-31
           targets: x86_64-pc-windows-msvc
-      - name: Seed pinned MPV runtime archive
-        shell: pwsh
-        run: |
-          # shinchiro/mpv-winbuild-cmake prunes old GitHub releases, so the URL
-          # pinned in mpv.lock.json eventually 404s. The same build is also
-          # published to the project's SourceForge mirror. Drop the archive into
-          # playback-mpv's cache (target/.mpv-cache/<sha256[..16]>/) so build.rs
-          # finds it and skips its own download. Only a file matching the pinned
-          # SHA-256 is accepted, so the lock is unchanged and what gets linked
-          # is byte-for-byte what was pinned. Runs first so it fails fast.
-          $d = (Get-Content mpv.lock.json -Raw | ConvertFrom-Json).distribution
-          $dir = Join-Path target (Join-Path .mpv-cache $d.sha256.Substring(0, 16))
-          $dest = Join-Path $dir $d.asset
-          New-Item -ItemType Directory -Force -Path $dir | Out-Null
-          $sources = @(
-            $d.url,
-            "https://downloads.sourceforge.net/project/mpv-player-windows/libmpv/$($d.asset)"
-          )
-          foreach ($source in $sources) {
-            try {
-              Write-Output "Trying $source"
-              Invoke-WebRequest -Uri $source -OutFile $dest -UserAgent 'Wget/1.21' -MaximumRedirection 10
-              $hash = (Get-FileHash $dest -Algorithm SHA256).Hash
-              if ($hash -ieq $d.sha256) {
-                Write-Output "Verified $($d.asset) ($hash)"
-                exit 0
-              }
-              Write-Warning "SHA-256 mismatch from ${source}: got $hash"
-            } catch {
-              Write-Warning "Download failed from ${source}: $_"
-            }
-            Remove-Item $dest -ErrorAction SilentlyContinue
-          }
-          throw "No source served $($d.asset) with SHA-256 $($d.sha256)"
       - name: Provide libclang for autocxx bindings
         shell: pwsh
         run: |
